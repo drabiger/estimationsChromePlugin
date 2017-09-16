@@ -1,4 +1,13 @@
-
+var extractFromColumnTitle = function(regexp, cardTitle) {
+	var regExpResult = regexp.exec(cardTitle);
+	if (regExpResult && regExpResult.length > 1) {
+		var value = parseFloat(regExpResult[1]);
+		if (!isNaN(value)) {
+			return { value: value, index : regExpResult.index, lengthOfMatch: regExpResult[0].length };
+		}
+	}
+	return null;
+};
 
 setInterval(function() {
 	var columns = $(".PlannerRoot .planTaskboardPage .boardColumn");
@@ -12,51 +21,51 @@ setInterval(function() {
 		var sumColumnOriginalEstimate = 0;
 		var sumColumnRemainingEstimate = 0;
 		cardTitleDivs.each(function() {
+			// set default
+			var cardOriginalEstimate;
+			var cardRemainingEstimate;
+
 			// get title without any HTML children
 			var cardTitle = $(this).clone().children().remove().end().text();
-			var newTitle;
-			// console.log("  card title: ", cardTitle);
 
 			// check if we already added a label span (only after first iteration of interval)
 			var cardEstimatesPlugin = $(this).find(".cardEstimatesPlugin");
 			if(cardEstimatesPlugin.length > 0) {
-				var spanChildren = $(cardEstimatesPlugin).children("span");
-				// console.log("  Found children: ", spanChildren);
-
-				sumColumnOriginalEstimate += parseFloat(spanChildren[0].innerHTML);
-				sumColumnRemainingEstimate += parseFloat(spanChildren[1].innerHTML);
+				var spanChildrenOriginal = $(cardEstimatesPlugin).children("span .cardEstimatesPluginOriginal");
+				if (spanChildrenOriginal && spanChildrenOriginal.length > 0) {
+					sumColumnOriginalEstimate += parseFloat(spanChildrenOriginal[0].innerHTML);
+				}
+				var spanChildrenRemaining = $(cardEstimatesPlugin).children("span .cardEstimatesPluginRemaining");
+				if (spanChildrenRemaining && spanChildrenRemaining.length > 0) {
+					sumColumnRemainingEstimate += parseFloat(spanChildrenRemaining[0].innerHTML);
+				}
 			} else {
 				// this is what we inspect in the first iteration of the interval
 				// get original estimation in round brackets
-				var cardOriginalEstimate = 0;
-				var cardRemainingEstimate = 0;
-				var bracketRoundOpen = cardTitle.indexOf("(");
-				var bracketRoundClose = cardTitle.indexOf(")");
-				if(bracketRoundOpen >= 0 && bracketRoundClose > 0) {
-					cardOriginalEstimate = cardTitle.substring(bracketRoundOpen+1, bracketRoundClose);
-					// console.log("    cardOriginalEstimate: ", cardOriginalEstimate);
-					sumColumnOriginalEstimate += parseFloat(cardOriginalEstimate);
-
-					// remove number in round brackets from title, 
-					// we are going to add this information later in span.cardEstimatesPlugin
-					cardTitle = cardTitle.slice(0, bracketRoundOpen) + cardTitle.slice(bracketRoundClose+1);
+				var matchResult = extractFromColumnTitle(/\(\s*(-?\d+\.?\d*)\s*\)/, cardTitle);
+				if (matchResult) {
+					sumColumnOriginalEstimate += matchResult.value;
+					cardTitle = cardTitle.slice(0, matchResult.index) + cardTitle.slice(matchResult.index + matchResult.lengthOfMatch);
+					cardOriginalEstimate = matchResult.value;
 				}
 
-				// get remaining estimation in square brackets
-				var bracketSquareOpen = cardTitle.indexOf("[");
-				var bracketSquareClose = cardTitle.indexOf("]");
-				if(bracketSquareOpen >= 0 && bracketSquareClose > 0) {
-					cardRemainingEstimate = cardTitle.substring(bracketSquareOpen+1, bracketSquareClose);
-					// console.log("    cardRemainingEstimate: ", cardRemainingEstimate);
-					sumColumnRemainingEstimate += parseFloat(cardRemainingEstimate);
-
-					// remove number in round square from title, 
-					// we are going to add this information later in span.cardEstimatesPlugin
-					cardTitle = cardTitle.slice(0, bracketSquareOpen) + cardTitle.slice(bracketSquareClose+1);
+				matchResult = extractFromColumnTitle(/\[\s*(-?\d+\.?\d*)\s*\]/, cardTitle);
+				if (matchResult) {
+					sumColumnRemainingEstimate += matchResult.value;
+					cardTitle = cardTitle.slice(0, matchResult.index) + cardTitle.slice(matchResult.index + matchResult.lengthOfMatch);
+					cardRemainingEstimate = matchResult.value;
 				}
-				$(this).html("<span class='cardEstimatesPlugin'><span class='label label-default'>" + cardOriginalEstimate + "</span>"
-					+ " <span class='label label-info'>" + cardRemainingEstimate + "</span>"
-					+"</span>" + cardTitle);
+
+				var newHtmlContent = "<span class='cardEstimatesPlugin'>";
+				if(!isNaN(cardOriginalEstimate)) {
+					newHtmlContent += "<span class='label label-default cardEstimatesPluginOriginal'>" + cardOriginalEstimate + "</span> ";
+				}
+				if(!isNaN(cardRemainingEstimate)) {
+					newHtmlContent += "<span class='label label-info cardEstimatesPluginRemaining'>" + cardRemainingEstimate + "</span> ";
+				}
+				newHtmlContent += "</span>" + cardTitle;
+				$(this).html(newHtmlContent);				
+
 			}
 		});
 
