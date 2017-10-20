@@ -11,3 +11,5 @@ HOW DOES IT WORK?
 The original estimation will be given as number in round brackets as part of the card's label, while the remaining estimation will be given as number in square brackets. E.g., you would write "(3) Prepare Dinner [5]".
 
 The plugin sums up all original (remaining) estimations for all cards of a column, and displays the sum as part of the column's title.
+
+More technically speaking, the plugin parses the title for all cards on the board. Text content between parentheses will be removed from the title and added as a label at the bottom of each card. The same is true for content between square brackets. If content can be parsed as a float value, it will contribute to a sum.
