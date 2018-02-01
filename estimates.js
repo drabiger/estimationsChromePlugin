@@ -61,6 +61,7 @@ setInterval(function() {
 						}
 						extraRowSpans += "<span class='label " + typeContent + "'" + dataContent + ">" +  matchResult[matchIndex] + "</span> ";
 						cardTitle = cardTitle.slice(0, matchResult.index) + cardTitle.slice(matchResult.index + matchResult[matchIndex].length + 2);
+						// console.log("value: " + value + ", title: " + cardTitle);
 					}
 				}
 				regexp.lastIndex = 0;
@@ -86,13 +87,17 @@ setInterval(function() {
 		if(hasSumChangedForColumn) {
 			var sumColumnRemainingEstimate = 0;
 			var hasRemainingSum = false;
+			// console.log("NEXT COLUMN");
 			$(this).find("div.extraRow span.label-info").each(function() {
 				var value = $(this).data('value');
 				if(value) {
 					sumColumnRemainingEstimate += parseFloat(value);
+					// console.log("sum: " + sumColumnRemainingEstimate + ", value: " + parseFloat(value));
 					hasRemainingSum = true;
 				}
 			});
+			sumColumnRemainingEstimate = Math.round(sumColumnRemainingEstimate * 100) / 100;
+
 			var sumColumnOriginalEstimate = 0;
 			var hasOriginalSum = false;
 			$(this).find("div.extraRow span.label-default").each(function() {
@@ -102,6 +107,7 @@ setInterval(function() {
 					hasOriginalSum = true;
 				}
 			});
+			sumColumnOriginalEstimate = Math.round(sumColumnOriginalEstimate * 100) / 100;
 
 			// set sum of card estimations on colum title
 			var sumHtml = "<div class='colEstimatesPlugin'>";
