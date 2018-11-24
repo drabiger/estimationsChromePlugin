@@ -58,7 +58,7 @@ setInterval(function() {
 						if (!isNaN(value)) {
 							dataContent = " data-value='" + value + "'";
 						}
-						extraRowSpans += "<span class='label " + typeContent + "'" + dataContent + ">" +  matchResult[matchIndex] + "</span> ";
+						extraRowSpans += "<span class='bootstrap-iso'><span class='label " + typeContent + "'" + dataContent + ">" +  matchResult[matchIndex] + "</span></span> ";
 						cardTitle = cardTitle.slice(0, matchResult.index) + cardTitle.slice(matchResult.index + matchResult[matchIndex].length + 2);
 						// console.log("value: " + value + ", title: " + cardTitle);
 					}
@@ -110,14 +110,14 @@ setInterval(function() {
 		sumColumnOriginalEstimate = Math.round(sumColumnOriginalEstimate * 100) / 100;
 
 		// set sum of card estimations on colum title
-		var sumHtml = "<div class='colEstimatesPlugin'>";
+		var sumHtml = "<span class='bootstrap-iso colEstimatesPlugin'>";
 		if(hasOriginalSum) {
 			sumHtml += "<span class='label label-default'>" + sumColumnOriginalEstimate + "</span> ";
 		}
 		if(hasRemainingSum) {
 			sumHtml += "<span class='label label-info'>"+ sumColumnRemainingEstimate + "</span>";
 		}
-		sumHtml += "</div>";
+		sumHtml += "</span>";
 		var estimatesPluginDiv = columnTitleSection.find(".colEstimatesPlugin");
 		if(estimatesPluginDiv.length == 0) {
 			columnTitleSection.prepend(sumHtml);
