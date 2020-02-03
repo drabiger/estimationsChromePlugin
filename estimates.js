@@ -10,7 +10,7 @@ var extractFromColumnTitle = function(regexp, cardTitle) {
 };
 
 setInterval(function() {
-	var columns = $(".PlannerRoot .planTaskboardPage .boardColumn");
+	var columns = $(".PlannerRoot .tasksBoardPage .boardColumn");
 	columns.each(function() {
 		var columnTitleSection = $(this).find(".columnHeader .titleSection");
 		var columnTitleDiv = $(columnTitleSection).find(".columnTitle");
