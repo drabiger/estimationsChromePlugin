@@ -13,10 +13,8 @@ setInterval(function() {
 	var columns = $(".PlannerRoot .tasksBoardPage .taskBoardColumn");
 	columns.each(function() {
 		var columnTitleSection = $(this).find(".columnHeader .titleSection");
-		var columnTitleDiv = $(columnTitleSection).find(".columnTitle");
 
 		var cards = $(this).find(".taskCard");
-		var hasSumChangedForColumn = false;
 
 		cards.each(function() {
 			var cardTitleDiv = $(this).find(".title");
