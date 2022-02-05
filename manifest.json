@@ -1,9 +1,9 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Estimations Plugin for Microsoft Planner",
   "description": "This extension sums up numbers given in the title of Microsoft Planner cards",
-  "version": "1.61",
+  "version": "1.62",
   "short_name" : "Planner Estimations",
 
   "author": "Dirk Räbiger, Pablo Rivero, cmerodio@github.com",
@@ -13,7 +13,7 @@
     {
       "matches": ["https://tasks.office.com/*/Planner*"],
       "css": ["bootstrap-iso.css", "estimates.css"],
-      "js": ["jquery.min.js", "estimates.js"],
+      "js": ["estimates.js"],
       "run_at" : "document_end"
     }
   ]

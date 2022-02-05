@@ -1,45 +1,29 @@
-var extractFromColumnTitle = function(regexp, cardTitle) {
-	var regExpResult = regexp.exec(cardTitle);
-	if (regExpResult && regExpResult.length > 1) {
-		var value = parseFloat(regExpResult[1]);
-		if (!isNaN(value)) {
-			return { value: value, index : regExpResult.index, lengthOfMatch: regExpResult[0].length };
-		}
-	}
-	return null;
-};
-
 setInterval(function() {
-	var columns = $(".PlannerRoot .tasksBoardPage .taskBoardColumn");
-	columns.each(function() {
-		var columnTitleSection = $(this).find(".columnHeader .titleSection");
+// setTimeout(function() {
+	const columns = document.querySelectorAll(".PlannerRoot .tasksBoardPage .taskBoardColumn");
+	columns.forEach(function(column) {
+		let columnTitleSection = column.querySelector(".columnHeader .titleSection");
 
-		var cards = $(this).find(".taskCard");
+		const cards = column.querySelectorAll(".taskCard");
 
-		cards.each(function() {
-			var cardTitleDiv = $(this).find(".title");
-			if(cardTitleDiv.length == 0) {
+		cards.forEach(function(card) {
+			const cardTitleDiv = card.querySelector(".title");
+			if(cardTitleDiv.length === 0) {
 				return; // continue each() loop
 			}
-			// set default
-			var cardOriginalEstimate;
-			var cardRemainingEstimate;
-
 			// get title without any HTML children
-			var cardTitle = $(cardTitleDiv).clone().children().remove().end().text();
-			var newCardTitle = cardTitle;
-
-			var regexp = new RegExp(/(\(\s*([^\)]+)\s*\)|\[\s*([^\]]+)\s*\])/, 'g');
+			let cardTitle = cardTitleDiv.textContent;
+			const regexp = new RegExp(/(\(\s*([^)]+)\s*\)|\[\s*([^\]]+)\s*])/, 'g');
 			regexp.lastIndex = 0;
-			var matchResult = regexp.exec(cardTitle);
-			var extraRowSpans = "";
+			let matchResult = regexp.exec(cardTitle);
+			let extraRowSpans = [];
 
 			// the i count is to prevent endless loops, e.g. by removing the "g"lobal option in regexp above
-			var i=0;
+			let i=0;
 			while(i < 20 && matchResult !== null) {
-				if(matchResult.length == 4) {
-					var typeContent;
-					var matchIndex;
+				if(matchResult.length === 4) {
+					let typeContent;
+					let matchIndex;
 					// we expect four result items:
 					// 0: full string match, 1: surrounding parenthesis,  2: left parentheses for '(...)' matches, 3: right parentheses for '[...]' matches
 					if(matchResult[2] !== undefined) {
@@ -51,14 +35,21 @@ setInterval(function() {
 						matchIndex = 3;
 					}
 					if (typeContent) {
-						var value = parseFloat(matchResult[matchIndex]);
-						var dataContent = "";
+						const value = parseFloat(matchResult[matchIndex]);
+						let newRowSpan = document.createElement("span");
+						newRowSpan.classList.add("bootstrap-iso");
+						newRowSpan.style.margin = "3px";
+						let newLabel = document.createElement("span");
+						newLabel.classList.add("label");
+						newLabel.classList.add(typeContent);
 						if (!isNaN(value)) {
-							dataContent = " data-value='" + value + "'";
+							newLabel.setAttribute("data-value", value.toString());
 						}
-						extraRowSpans += "<span class='bootstrap-iso'><span class='label " + typeContent + "'" + dataContent + ">" +  matchResult[matchIndex] + "</span></span> ";
+						newLabel.textContent = matchResult[matchIndex];
+						newRowSpan.appendChild(newLabel);
+						extraRowSpans.push(newRowSpan);
+
 						cardTitle = cardTitle.slice(0, matchResult.index) + cardTitle.slice(matchResult.index + matchResult[matchIndex].length + 2);
-						// console.log("value: " + value + ", title: " + cardTitle);
 					}
 				}
 				regexp.lastIndex = 0;
@@ -67,39 +58,38 @@ setInterval(function() {
 			}
 
 			if(extraRowSpans.length > 0) {
-				var extraRow = $(this).find(".extraRow");
+				let extraRow = card.querySelector(".extraRow");
 				if(extraRow) {
-					$(extraRow).remove();
+					extraRow.remove();
 				}
-				var topBar = $(this).find(".topBar");
-				if(topBar.length > 0) {
-					extraRow = $("<div class='extraRow' style='margin-top: 10px;'>"+ extraRowSpans + "</div>");
-					$(topBar).append(extraRow);
+				let topBar = card.querySelector(".topBar");
+				if(topBar) {
+					extraRow = document.createElement("div");
+					extraRow.classList.add("extraRow");
+					extraRow.style.marginTop = "10px";
+					extraRowSpans.forEach(it => extraRow.appendChild(it));
+					topBar.appendChild(extraRow);
 				}
-				$(cardTitleDiv).html(cardTitle);
+				cardTitleDiv.textContent = cardTitle;
 			}
-
 		});
 
-
 		// Calculate column sum
-		var sumColumnRemainingEstimate = 0;
-		var hasRemainingSum = false;
-		// console.log("NEXT COLUMN");
-		$(this).find("div.extraRow span.label-info").each(function() {
-			var value = $(this).data('value');
+		let sumColumnRemainingEstimate = 0;
+		let hasRemainingSum = false;
+		column.querySelectorAll("div.extraRow span.label-info").forEach(function(it) {
+			let value = it.getAttribute('data-value');
 			if(value) {
 				sumColumnRemainingEstimate += parseFloat(value);
-				// console.log("sum: " + sumColumnRemainingEstimate + ", value: " + parseFloat(value));
 				hasRemainingSum = true;
 			}
 		});
 		sumColumnRemainingEstimate = Math.round(sumColumnRemainingEstimate * 100) / 100;
 
-		var sumColumnOriginalEstimate = 0;
-		var hasOriginalSum = false;
-		$(this).find("div.extraRow span.label-default").each(function() {
-			var value = $(this).data('value');
+		let sumColumnOriginalEstimate = 0;
+		let hasOriginalSum = false;
+		column.querySelectorAll("div.extraRow span.label-default").forEach(function(it) {
+			let value = it.getAttribute('data-value');
 			if(value) {
 				sumColumnOriginalEstimate += parseFloat(value);
 				hasOriginalSum = true;
@@ -108,22 +98,32 @@ setInterval(function() {
 		sumColumnOriginalEstimate = Math.round(sumColumnOriginalEstimate * 100) / 100;
 
 		// set sum of card estimations on colum title
-		var sumHtml = "<span class='bootstrap-iso colEstimatesPlugin'>";
+		let sumHtml = document.createElement("div");
+		sumHtml.classList.add("bootstrap-iso");
+		sumHtml.classList.add("colEstimatesPlugin");
+
 		if(hasOriginalSum) {
-			sumHtml += "<span class='label label-default'>" + sumColumnOriginalEstimate + "</span> ";
+			let originalEstimateEl = document.createElement("div");
+			originalEstimateEl.classList.add("label");
+			originalEstimateEl.classList.add("label-default");
+			originalEstimateEl.style.margin = "3px";
+			originalEstimateEl.textContent = sumColumnOriginalEstimate;
+			sumHtml.appendChild(originalEstimateEl);
 		}
+
 		if(hasRemainingSum) {
-			sumHtml += "<span class='label label-info'>"+ sumColumnRemainingEstimate + "</span>";
+			let remainEstimateEl = document.createElement("div");
+			remainEstimateEl.classList.add("label");
+			remainEstimateEl.classList.add("label-info");
+			remainEstimateEl.style.margin = "3px";
+			remainEstimateEl.textContent = sumColumnRemainingEstimate;
+			sumHtml.appendChild(remainEstimateEl);
 		}
-		sumHtml += "</span>";
-		var estimatesPluginDiv = columnTitleSection.find(".colEstimatesPlugin");
-		if(estimatesPluginDiv.length == 0) {
-			columnTitleSection.prepend(sumHtml);
-		} else {
-			$(estimatesPluginDiv).replaceWith(sumHtml);
+		const estimatesPluginDiv = columnTitleSection.querySelector(".colEstimatesPlugin");
+		if(estimatesPluginDiv) {
+			estimatesPluginDiv.remove();
 		}
-
-
+		columnTitleSection.appendChild(sumHtml)
 	});
 
-}, 3000);
+ }, 3000);
