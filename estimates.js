@@ -3,6 +3,10 @@ setInterval(function() {
 	const columns = document.querySelectorAll(".PlannerRoot .tasksBoardPage .taskBoardColumn");
 	columns.forEach(function(column) {
 		let columnTitleSection = column.querySelector(".columnHeader .titleSection");
+		if (columnTitleSection === null) {
+			// columns will only be loaded in DOM once they are in viewport.
+			return;
+		}
 
 		const cards = column.querySelectorAll(".taskCard");
 
