@@ -1,6 +1,6 @@
 setInterval(function() {
 // setTimeout(function() {
-	const columns = document.querySelectorAll(".PlannerRoot .planTaskBoardPage .taskBoardColumn");
+	const columns = document.querySelectorAll(".taskBoardView .columnsList .taskBoardColumn");
 	columns.forEach(function(column) {
 		let columnTitleSection = column.querySelector(".columnHeader .titleSection");
 		if (columnTitleSection === null) {
