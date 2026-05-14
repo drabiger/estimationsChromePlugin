@@ -1,4 +1,9 @@
 # estimationsChromePlugin
+
+```
+** THIS PROJECT IS RETIRED, FEEL FREE TO FORK, BUT THERE WILL NO BE FURTHER CHANGES **
+```
+
 Estimations extension for Microsoft Planner
 
 This extension sums up numbers given in the title of Microsoft Planner cards
